@@ -214,21 +214,6 @@ body {
 }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
-.inbox-btn {
-  position: relative; background: var(--card); border: 1px solid var(--border2);
-  border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text2);
-  font-size: 16px; transition: all 0.2s;
-}
-.inbox-btn:hover { border-color: var(--accent); color: var(--accent3); }
-.inbox-dot {
-  position: absolute; top: -3px; right: -3px;
-  width: 10px; height: 10px;
-  background: var(--red); border-radius: 50%;
-  border: 2px solid var(--bg2);
-  display: none;
-}
-.inbox-dot.show { display: block; }
-
 /* ========== BUTTONS ========== */
 .btn {
   padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer;
@@ -510,27 +495,7 @@ body {
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .form-hint { font-size: 11px; color: var(--text3); font-style: italic; }
 
-/* ========== INBOX ========== */
-.inbox-list { display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto; }
-.inbox-item {
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.inbox-item.new { border-color: var(--accent2); background: rgba(200,160,65,0.05); }
-.inbox-item-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--card2); display: flex; align-items: center;
-  justify-content: center; font-family: 'Cinzel', serif; font-weight: 700;
-  color: var(--accent); flex-shrink: 0;
-}
-.inbox-item-info { flex: 1; min-width: 0; }
-.inbox-item-name { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; }
-.inbox-item-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-.inbox-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.no-inbox { text-align: center; padding: 30px; color: var(--text3); font-style: italic; font-size: 14px; }
-
-/* ========== LOGIN SCREEN ========== */
+/* ========== ORGS PAGE ========== */
 #loginScreen {
   position: fixed; inset: 0; z-index: 9999;
   background: var(--bg);
@@ -605,18 +570,6 @@ body {
   font-size: 13px; color: var(--accent2); font-style: italic;
   display: flex; align-items: center; gap: 8px;
 }
-
-/* ========== WAITING SCREEN ========== */
-#waitingScreen {
-  position: fixed; inset: 0; z-index: 9998;
-  background: var(--bg); display: flex; align-items: center;
-  justify-content: center; flex-direction: column; gap: 16px;
-  font-family: 'Crimson Pro', serif;
-}
-.waiting-emblem { font-size: 56px; filter: drop-shadow(0 0 16px var(--accent)); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-.waiting-title { font-family: 'Cinzel', serif; font-size: 20px; color: var(--accent3); }
-.waiting-sub { font-size: 14px; color: var(--text2); font-style: italic; }
 
 /* ========== ORGS PAGE ========== */
 .orgs-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px; }
@@ -812,18 +765,6 @@ body {
   </div>
 </div>
 
-<!-- ========== WAITING APPROVAL SCREEN ========== -->
-<div id="waitingScreen" style="display:none">
-  <div class="waiting-emblem">📬</div>
-  <div class="waiting-title">Solicitação Enviada</div>
-  <div class="waiting-sub">Aguardando aprovação do Líder ou Co-Líder...</div>
-  <p style="font-size:13px;color:var(--text3);font-style:italic;max-width:300px;text-align:center;">
-    Sua entrada na guilda está pendente. Quando aprovado, você poderá acessar o painel.
-  </p>
-  <button class="btn btn-ghost" style="margin-top:10px;" onclick="checkApproval()">🔄 Verificar Aprovação</button>
-  <button class="btn btn-danger btn-sm" style="margin-top:4px;" onclick="cancelRequest()">Cancelar Solicitação</button>
-</div>
-
 <!-- ========== SIDEBAR ========== -->
 <nav class="sidebar" id="appSidebar" style="display:none">
   <div class="sidebar-logo">
@@ -885,9 +826,6 @@ body {
     <div class="topbar-title" id="topbarTitle">⚔️ Painel</div>
     <div class="topbar-right">
       <div id="topbarActions"></div>
-      <button class="inbox-btn" onclick="openInbox()" title="Solicitações" id="inboxBtn">
-        📬 <div class="inbox-dot" id="inboxDot"></div>
-      </button>
     </div>
   </div>
 
@@ -1296,24 +1234,6 @@ body {
   </div>
 </div>
 
-<!-- ====== MODAL INBOX ====== -->
-<div class="modal-overlay" id="inboxModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">📬 Solicitações de Entrada</div>
-      <button class="modal-close" onclick="document.getElementById('inboxModal').classList.remove('open')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="inbox-list" id="inboxList">
-        <div class="no-inbox">Nenhuma solicitação pendente.</div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="document.getElementById('inboxModal').classList.remove('open')">Fechar</button>
-    </div>
-  </div>
-</div>
-
 <!-- ====== CART BAR ====== -->
 <div class="cart-bar" id="cartBar">
   <div class="cart-bar-info">🛒 Carrinho</div>
@@ -1699,70 +1619,12 @@ async function doLogin() {
       isLeader: member.role === 'Líder', isCoLeader: member.role === 'Co-Líder', uid: member.uid };
     saveSession(); enterApp();
   } else {
-    const alreadyReq = (guild.requests || []).find(r => r.name.toLowerCase() === nameInput.toLowerCase());
-    if (alreadyReq) {
-      if (alreadyReq.approved) {
-        const newMember = { uid: uid(), name: nameInput, id: '#' + String(guild.members.length+1).padStart(4,'0'), phone:'', role:'Membro', tags:[], notes:'', warnings:0, warningReason:'' };
-        guild.members.push(newMember);
-        guild.requests = guild.requests.filter(r => r.name.toLowerCase() !== nameInput.toLowerCase());
-        currentUser = { name: nameInput, role: 'Membro', tags: [], isLeader: false, isCoLeader: false, uid: newMember.uid };
-        await saveGuild(); saveSession(); enterApp();
-      } else {
-        saveWaitingSession(nameInput, resolvedId); showWaiting();
-      }
-    } else {
-      if (!guild.requests) guild.requests = [];
-      guild.requests.push({ uid: uid(), name: nameInput, requestedAt: Date.now(), approved: false });
-      await saveGuild();
-      saveWaitingSession(nameInput, resolvedId); showWaiting();
-    }
+    err.textContent = '⚔️ Personagem não encontrado nesta guilda. Peça ao Líder para te adicionar como membro.';
+    err.classList.add('show');
   }
-}
-
-function showWaiting() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('waitingScreen').style.display = 'flex';
-}
-
-async function checkApproval() {
-  const ws = getWaitingSession();
-  if (!ws) { showLogin(); return; }
-  const result = await loadGuildByBlob(ws.guildKey);
-  if (!result) { toast('Guilda não encontrada. Peça ao Líder um novo Pacote de Sincronização.', 'error'); return; }
-  const { data: guild, resolvedId } = result;
-  currentGuild = guild; currentGuildKey = resolvedId;
-  const req = (guild.requests || []).find(r => r.name.toLowerCase() === ws.name.toLowerCase());
-  if (req && req.approved) {
-    const newMember = { uid: uid(), name: ws.name, id: '#' + String(guild.members.length+1).padStart(4,'0'), phone:'', role:'Membro', tags:[], notes:'', warnings:0, warningReason:'' };
-    guild.members.push(newMember);
-    guild.requests = guild.requests.filter(r => r.name.toLowerCase() !== ws.name.toLowerCase());
-    currentUser = { name: ws.name, role: 'Membro', tags: [], isLeader: false, isCoLeader: false, uid: newMember.uid };
-    await saveGuild(); clearWaitingSession(); saveSession();
-    document.getElementById('waitingScreen').style.display = 'none'; enterApp();
-  } else if (!req) {
-    const member = guild.members.find(m => m.name.toLowerCase() === ws.name.toLowerCase());
-    if (member) {
-      currentUser = { name: member.name, role: member.role, tags: member.tags||[], isLeader: member.role==='Líder', isCoLeader: member.role==='Co-Líder', uid: member.uid };
-      clearWaitingSession(); saveSession();
-      document.getElementById('waitingScreen').style.display = 'none'; enterApp();
-    } else { toast('Solicitação ainda pendente.', 'error'); }
-  } else { toast('Ainda aguardando aprovação do Líder...', 'error'); }
-}
-
-async function cancelRequest() {
-  const ws = getWaitingSession();
-  if (!ws) { showLogin(); return; }
-  const result = await loadGuildByBlob(ws.guildKey);
-  if (result) {
-    result.data.requests = (result.data.requests || []).filter(r => r.name.toLowerCase() !== ws.name.toLowerCase());
-    currentGuild = result.data; currentGuildKey = result.resolvedId;
-    await saveGuild();
-  }
-  clearWaitingSession(); showLogin();
 }
 
 function showLogin() {
-  document.getElementById('waitingScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
 
@@ -1778,25 +1640,13 @@ function getSession() {
 function clearSession() {
   try { localStorage.removeItem('guilda_session'); } catch(e) {}
 }
-function saveWaitingSession(name, guildKey) {
-  try { localStorage.setItem('guilda_waiting', JSON.stringify({ name, guildKey })); } catch(e) {}
-}
-function getWaitingSession() {
-  try { return JSON.parse(localStorage.getItem('guilda_waiting')); } catch(e) { return null; }
-}
-function clearWaitingSession() {
-  try { localStorage.removeItem('guilda_waiting'); } catch(e) {}
-}
-
 // ============= ENTER APP =============
 function enterApp() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('waitingScreen').style.display = 'none';
   document.getElementById('appSidebar').style.display = 'flex';
   document.getElementById('appMain').style.display = 'flex';
   updateSidebarUI();
-  updatePermissions();
-  loadMemberTheme(); // apply this member's personal theme
+  loadMemberTheme();
   navigate('home');
 }
 
@@ -1830,7 +1680,6 @@ function navigate(page) {
     const codeEl = document.getElementById('settingsGuildCode');
     if (codeEl && currentGuild) codeEl.textContent = generateSyncPackage(currentGuild);
   }
-  // Show/hide cart bar only on loja page
   document.getElementById('cartBar').style.left = '230px';
   updateCartBar();
 }
@@ -1838,13 +1687,6 @@ function navigate(page) {
 // ============= PERMISSIONS =============
 function canEdit() {
   return currentUser && (currentUser.isLeader || currentUser.isCoLeader);
-}
-
-function updatePermissions() {
-  const isEditor = canEdit();
-  // inbox only for leaders
-  document.getElementById('inboxBtn').style.display = isEditor ? '' : 'none';
-  // member add/edit btns controlled in renderMembers
 }
 
 // ============= SIDEBAR UI =============
@@ -1856,12 +1698,6 @@ function updateSidebarUI() {
   document.getElementById('userNameDisplay').textContent = currentUser.name;
   document.getElementById('userRoleDisplay').textContent = currentUser.role;
   document.getElementById('memberBadge').textContent = (currentGuild.members || []).length;
-  updateInboxDot();
-}
-
-function updateInboxDot() {
-  const pending = (currentGuild.requests || []).filter(r => !r.approved).length;
-  document.getElementById('inboxDot').classList.toggle('show', pending > 0 && canEdit());
 }
 
 // ============= HOME =============
@@ -2515,47 +2351,6 @@ async function saveUsername() {
   closeUsernameModal();
 }
 
-// ============= INBOX =============
-function openInbox() {
-  if (!canEdit()) return;
-  const requests = (currentGuild.requests || []).filter(r => !r.approved);
-  const list = document.getElementById('inboxList');
-  if (requests.length === 0) { list.innerHTML = '<div class="no-inbox">Nenhuma solicitação pendente. ⚔️</div>'; }
-  else {
-    list.innerHTML = requests.map(r => {
-      const date = new Date(r.requestedAt).toLocaleDateString('pt-BR');
-      return `<div class="inbox-item new">
-        <div class="inbox-item-avatar">${r.name.charAt(0).toUpperCase()}</div>
-        <div class="inbox-item-info">
-          <div class="inbox-item-name">${esc(r.name)}</div>
-          <div class="inbox-item-sub">Solicitou entrada · ${date}</div>
-        </div>
-        <div class="inbox-item-actions">
-          <button class="btn btn-primary btn-xs" onclick="approveRequest('${r.uid}')">✅</button>
-          <button class="btn btn-danger btn-xs" onclick="rejectRequest('${r.uid}')">❌</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-  document.getElementById('inboxModal').classList.add('open');
-}
-
-async function approveRequest(uid_) {
-  const req = (currentGuild.requests||[]).find(r => r.uid === uid_);
-  if (!req) return;
-  req.approved = true;
-  await saveGuild();
-  openInbox(); updateInboxDot();
-  toast('✅ Solicitação aprovada!', 'success');
-}
-
-async function rejectRequest(uid_) {
-  currentGuild.requests = (currentGuild.requests||[]).filter(r => r.uid !== uid_);
-  await saveGuild();
-  openInbox(); updateInboxDot();
-  toast('Solicitação rejeitada.', 'success');
-}
-
 // ============= UTILS =============
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -2580,8 +2375,6 @@ document.getElementById('mTagInput').addEventListener('keydown', e => { if (e.ke
 // ============= INIT =============
 setTheme('default', false);
 (async () => {
-  const ws = getWaitingSession();
-  if (ws) { showWaiting(); return; }
   const session = getSession();
   if (session && session.guildKey) {
     const result = await loadGuildByBlob(session.guildKey);
